@@ -9,6 +9,7 @@ const PostSchema = new Schema({
   area: Number,
   description: String,
   closeTo: String,
+  author: { type: Schema.Types.ObjectId, ref: 'User' },
 }, {
   toJSON: {
     virtuals: true,
