@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
 router.post('/signup', async (req, res) => {
   try {
     const token = await UserController.signup(req.body);
-    res.json({ token, email: req.body.emailm, authorName: req.user.authorName });
+    res.json({ token, email: req.body.email, authorName: req.user.authorName });
   } catch (error) {
     res.status(422).send({ error: error.toString() });
   }
