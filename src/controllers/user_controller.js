@@ -35,6 +35,7 @@ export const signup = async ({ email, password, authorName }) => {
   user.email = email;
   user.password = password;
   user.authorName = authorName;
+
   await user.save();
   return tokenForUser(user);
 };
