@@ -59,8 +59,6 @@ router.route('/posts')
 router.route('/posts/search')
   .get(async (req, res) => {
     try {
-      console.log('got here');
-      console.log(req.query);
       const result = await Posts.search(req.query.q);
       res.json(result);
     } catch (error) {
