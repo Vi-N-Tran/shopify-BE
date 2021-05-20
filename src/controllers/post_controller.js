@@ -65,8 +65,8 @@ export const updatePost = async (user, id, postFields) => {
   // return *updated* post
   try {
     const post = await Post.findById({ _id: id }).populate('author');
-    if (post.authorName === user.authorName) {
-      const posts = await Post.findByIdAndUpdate(id, {
+    if (post.author.authorName === user.authorName) {
+      await Post.findByIdAndUpdate(id, {
         cost: postFields.cost,
         images: postFields.images,
         location: postFields.location,
@@ -75,9 +75,10 @@ export const updatePost = async (user, id, postFields) => {
         area: postFields.area,
         description: postFields.description,
         closeTo: postFields.closeTo,
-        author: postFields.author,
+        author: post.author.id,
       }, { new: true });
-      if (posts) return posts;
+      const returnPost = await Post.findById({ _id: id });
+      if (returnPost) return returnPost;
       else return new Error(`Can not update ${id} post`);
     } else return new Error(`Can not update ${id} post`);
   } catch (error) {

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as Posts from './controllers/post_controller';
 import * as UserController from './controllers/user_controller';
 import { requireAuth, requireSignin } from './services/passport';
+import signS3 from './services/s3';
 
 const router = Router();
 
@@ -93,5 +94,7 @@ router.route('/posts/:id')
       res.status(500).json({ error });
     }
   });
+
+router.get('/sign-s3', signS3);
 
 export default router;
