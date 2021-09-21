@@ -15,8 +15,9 @@ export const signin = (user) => {
 };
 
 // note the lovely destructuring here indicating that we are passing in an object with these 3 keys
-export const signup = async ({ email, password, authorName }) => {
-  if (!email || !password || !authorName) {
+export const signup = async ({ email, password, owner }) => {
+  console.log(email, password, owner);
+  if (!email || !password || !owner) {
     throw new Error('You must provide email, password and author name');
   }
 
@@ -27,36 +28,41 @@ export const signup = async ({ email, password, authorName }) => {
     throw new Error('Email is in use');
   }
 
-  // 🚀 TODO:
-  // here you should use the User model to create a new user.
-  // this is similar to how you created a Post
-  // and then save and return a token
   const user = new User();
   user.email = email;
   user.password = password;
-  user.authorName = authorName;
+  user.owner = owner;
 
   await user.save();
   return tokenForUser(user);
 };
 
-export const updateUser = async (user, postFields) => {
-  // await updating a post by id
-  // return *updated* post
+// Get all the pics of a particular user
+export const getUser = async (userId) => {
   try {
-    if (postFields.newEmail && postFields.newAuthorName) {
-      let pass = user.password;
-      if (postFields.newPass) pass = postFields.newPass;
-      await User.findByIdAndUpdate(user._id, {
-        password: pass,
-        email: postFields.newEmail,
-        authorName: postFields.newAuthorName,
+    const foundUser = await User.findOne({ _id: userId }).populate('picsLiked').populate('picsOwn');
+    if (foundUser) return foundUser;
+    else return new Error('Can\'t find user');
+  } catch (error) {
+    throw new Error(`get user Pics error: ${error}`);
+  }
+};
+
+export const updateUser = async (userId, newUserData) => {
+  try {
+    if (newUserData) {
+      console.log('here1');
+      await User.findByIdAndUpdate(userId, {
+        picsLiked: newUserData.picsLiked,
+        picsOwn: newUserData.picsOwn,
       });
-      const returnUser = await User.findById({ _id: user._id });
+      console.log('here2');
+
+      const returnUser = await User.findById({ _id: userId });
       if (returnUser) return returnUser;
-      else return new Error(`Can not update user ${user.email}`);
+      else return new Error('Can not update user');
     } else {
-      return new Error(`Can not update user ${user.email}`);
+      return new Error('Can not update user');
     }
   } catch (error) {
     throw new Error(`update user error: ${error}`);

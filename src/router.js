@@ -1,19 +1,20 @@
 import { Router } from 'express';
-import * as Posts from './controllers/post_controller';
+import * as PicController from './controllers/pic_controller';
 import * as UserController from './controllers/user_controller';
-import { requireAuth, requireSignin } from './services/passport';
-import signS3 from './services/s3';
+// import { requireAuth, requireSignin } from './services/passport';
+import { requireSignin } from './services/passport';
 
 const router = Router();
 
 router.get('/', (req, res) => {
-  res.json({ message: 'welcome to our blog api!' });
+  res.json({ message: 'welcome to our shopify BE written by Vi Tran!' });
 });
 
 router.post('/signup', async (req, res) => {
   try {
+    console.log(req.body);
     const token = await UserController.signup(req.body);
-    res.json({ token, email: req.body.email, authorName: req.body.authorName });
+    res.json({ token, email: req.body.email, owner: req.body.owner });
   } catch (error) {
     res.status(422).send({ error: error.toString() });
   }
@@ -22,15 +23,26 @@ router.post('/signup', async (req, res) => {
 router.post('/signin', requireSignin, async (req, res) => {
   try {
     const token = UserController.signin(req.user);
-    res.json({ token, email: req.user.email, authorName: req.user.authorName });
+    res.json({ token, email: req.user.email, owner: req.user.owner });
   } catch (error) {
     res.status(422).send({ error: error.toString() });
   }
 });
 
-router.put('/user', requireAuth, async (req, res) => {
+router.get('/user/:id', async (req, res) => {
+  console.log(req.params.id);
   try {
-    const result = await UserController.updateUser(req.user, req.body);
+    const result = await UserController.getUser(req.params.id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+router.put('/user/:id', async (req, res) => {
+  try {
+    console.log(req.params.id, req.body);
+    const result = await UserController.updateUser(req.params.id, req.body);
     res.json(result);
   } catch (error) {
     res.status(500).json({ error });
@@ -38,61 +50,52 @@ router.put('/user', requireAuth, async (req, res) => {
 });
 
 /// your routes will go here
-router.route('/posts')
-  .post(requireAuth, async (req, res) => {
+router.post('/pics', async (req, res) => {
+  try {
+    const result = await PicController.createPic(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+router.get('/pics/search', async (req, res) => {
+  console.log('here');
+  console.log(req.query.q);
+  try {
+    const result = await PicController.search(req.query.q);
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+});
+
+router.route('/pics/:id')
+  .get(async (req, res) => {
     try {
-      const result = await Posts.createPost(req.user, req.body);
+      const result = await PicController.getPic(req.params.id);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error });
     }
   })
-  .get(async (req, res) => {
+  .put(async (req, res) => {
+    console.log(req.body.newOwnerId, req.params.id);
     try {
-      const result = await Posts.getPosts(req.body);
-      res.json(result);
-    } catch (error) {
-      res.status(500).json({ error });
-    }
-  });
-
-router.route('/posts/search')
-  .get(async (req, res) => {
-    try {
-      const result = await Posts.search(req.query.q);
-      res.json(result);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ error });
-    }
-  });
-
-router.route('/posts/:id')
-  .get(async (req, res) => {
-    try {
-      const result = await Posts.getPost(req.params.id);
+      const result = await PicController.updatePic(req.body.newOwnerId, req.params.id);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error });
     }
   })
-  .put(requireAuth, async (req, res) => {
+  .delete(async (req, res) => {
     try {
-      const result = await Posts.updatePost(req.user, req.params.id, req.body);
-      res.json(result);
-    } catch (error) {
-      res.status(500).json({ error });
-    }
-  })
-  .delete(requireAuth, async (req, res) => {
-    try {
-      const result = await Posts.deletePost(req.user, req.params.id);
+      const result = await PicController.deletePic(req.user, req.params.id);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error });
     }
   });
-
-router.get('/sign-s3', signS3);
 
 export default router;

@@ -9,9 +9,9 @@ import apiRouter from './router';
 dotenv.config({ silent: true });
 
 // DB Setup
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/cs52poll';
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/shopifyBE';
 
-mongoose.connect(mongoURI).then(() => {
+mongoose.connect(mongoURI, { useUnifiedTopology: true, useNewUrlParser: true, useFindAndModify: false }).then(() => {
   console.log('connected to database:', mongoURI);
 }).catch((err) => {
   console.log('error: could not connect to db:', err);
