@@ -1,17 +1,14 @@
 import Pic from '../models/pic_model';
 
 // Creating a replica of the NASA's picture in the database so the user can access it later on
-export const createPic = async (PicFields) => {
+export const createPic = async (picFields) => {
   try {
     const foundPic = new Pic();
-    console.log('here1');
-    foundPic.image = PicFields.image;
-    foundPic.title = PicFields.title;
-    foundPic.description = PicFields.description;
-    foundPic.date = PicFields.date;
-    console.log('here2');
+    foundPic.image = picFields.image ? picFields.image : '';
+    foundPic.title = picFields.title ? picFields.title : '';
+    foundPic.description = picFields.description ? picFields.description : '';
+    foundPic.owner = picFields.owner ? picFields.owner : '';
     const savedPic = await foundPic.save();
-    console.log('here3');
     if (savedPic) return savedPic;
     else return new Error('Can\'t create a Pic');
   } catch (error) {
@@ -42,7 +39,7 @@ export const getPic = async (id) => {
 };
 
 // Delete a specific pic
-export const deletePic = async (user, id) => {
+export const deletePic = async (id) => {
   try {
     const foundPic = await Pic.remove({ _id: id });
     if (foundPic) return foundPic;
@@ -66,7 +63,6 @@ export const updatePic = async (newOwnerId, picId) => {
 };
 
 export const search = async (term) => {
-  console.log(term);
   return Pic.find({
     description: {
       $regex: `.*${term}.*`,

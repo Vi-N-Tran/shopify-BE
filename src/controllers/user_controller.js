@@ -16,9 +16,8 @@ export const signin = (user) => {
 
 // note the lovely destructuring here indicating that we are passing in an object with these 3 keys
 export const signup = async ({ email, password, owner }) => {
-  console.log(email, password, owner);
   if (!email || !password || !owner) {
-    throw new Error('You must provide email, password and author name');
+    throw new Error('You must provide email, password and owner name');
   }
 
   // See if a user with the given email exists
@@ -40,9 +39,12 @@ export const signup = async ({ email, password, owner }) => {
 // Get all the pics of a particular user
 export const getUser = async (userId) => {
   try {
-    const foundUser = await User.findOne({ _id: userId }).populate('picsLiked').populate('picsOwn');
-    if (foundUser) return foundUser;
-    else return new Error('Can\'t find user');
+    const foundUser = await User.findOne({ _id: userId });
+    if (!foundUser) {
+      throw new Error('Can\'t find user');
+    } else {
+      return foundUser.populate('picsLiked').populate('picsOwn');
+    }
   } catch (error) {
     throw new Error(`get user Pics error: ${error}`);
   }
@@ -51,12 +53,10 @@ export const getUser = async (userId) => {
 export const updateUser = async (userId, newUserData) => {
   try {
     if (newUserData) {
-      console.log('here1');
       await User.findByIdAndUpdate(userId, {
         picsLiked: newUserData.picsLiked,
         picsOwn: newUserData.picsOwn,
       });
-      console.log('here2');
 
       const returnUser = await User.findById({ _id: userId });
       if (returnUser) return returnUser;

@@ -12,7 +12,6 @@ router.get('/', (req, res) => {
 
 router.post('/signup', async (req, res) => {
   try {
-    console.log(req.body);
     const token = await UserController.signup(req.body);
     res.json({ token, email: req.body.email, owner: req.body.owner });
   } catch (error) {
@@ -30,7 +29,6 @@ router.post('/signin', requireSignin, async (req, res) => {
 });
 
 router.get('/user/:id', async (req, res) => {
-  console.log(req.params.id);
   try {
     const result = await UserController.getUser(req.params.id);
     res.json(result);
@@ -41,7 +39,6 @@ router.get('/user/:id', async (req, res) => {
 
 router.put('/user/:id', async (req, res) => {
   try {
-    console.log(req.params.id, req.body);
     const result = await UserController.updateUser(req.params.id, req.body);
     res.json(result);
   } catch (error) {
@@ -60,8 +57,6 @@ router.post('/pics', async (req, res) => {
 });
 
 router.get('/pics/search', async (req, res) => {
-  console.log('here');
-  console.log(req.query.q);
   try {
     const result = await PicController.search(req.query.q);
     res.json(result);
@@ -81,7 +76,6 @@ router.route('/pics/:id')
     }
   })
   .put(async (req, res) => {
-    console.log(req.body.newOwnerId, req.params.id);
     try {
       const result = await PicController.updatePic(req.body.newOwnerId, req.params.id);
       res.json(result);
@@ -91,7 +85,7 @@ router.route('/pics/:id')
   })
   .delete(async (req, res) => {
     try {
-      const result = await PicController.deletePic(req.user, req.params.id);
+      const result = await PicController.deletePic(req.params.id);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error });
